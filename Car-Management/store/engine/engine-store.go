@@ -1,4 +1,4 @@
-package store
+package engine
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func NewEngineStore(db *sql.DB) *EngineStore {
 	return &EngineStore{db: db}
 }
 
-func (s EngineStore) CreateEngine(ctx context.Context, engineRequest models.EngineRequest) (models.Engine, error) {
+func (s EngineStore) CreateEngine(ctx context.Context, engine models.Engine) (models.Engine, error) {
 	var createdEngine models.Engine
 
 	// Begin Transaction
@@ -28,9 +28,9 @@ func (s EngineStore) CreateEngine(ctx context.Context, engineRequest models.Engi
 
 	newEngine := models.Engine{
 		EngineID:      engineId,
-		Displacement:  engineRequest.Displacement,
-		NoOfCylinders: engineRequest.NoOfCylinders,
-		CarRange:      engineRequest.CarRange,
+		Displacement:  engine.Displacement,
+		NoOfCylinders: engine.NoOfCylinders,
+		CarRange:      engine.CarRange,
 	}
 
 	query := `INSERT INTO engines (id, displacement, no_of_cylinders, car_range) VALUES ($1, $2, $3, $4) RETURNING id, displacement, no_of_cylinders, car_range`
@@ -54,7 +54,7 @@ func (s EngineStore) CreateEngine(ctx context.Context, engineRequest models.Engi
 	return createdEngine, nil
 }
 
-func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engineRequest *models.EngineRequest) (models.Engine, error) {
+func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engine *models.Engine) (models.Engine, error) {
 	var updatedEngine models.Engine
 
 	// Begin Transaction
@@ -66,7 +66,7 @@ func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engineRe
 	// Update Engine
 	query := `UPDATE engines SET displacement=$2, no_of_cylinders=$3, car_range=$4 WHERE id=$1 RETURNING id, displacement, no_of_cylinders, car_range`
 
-	err = tx.QueryRowContext(ctx, query, engineId, engineRequest.Displacement, engineRequest.NoOfCylinders, engineRequest.CarRange).Scan(
+	err = tx.QueryRowContext(ctx, query, engineId, engine.Displacement, engine.NoOfCylinders, engine.CarRange).Scan(
 		&updatedEngine.EngineID,
 		&updatedEngine.Displacement,
 		&updatedEngine.NoOfCylinders,

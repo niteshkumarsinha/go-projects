@@ -1,4 +1,4 @@
-package store
+package car
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type Store struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) Store {
+func NewCarStore(db *sql.DB) Store {
 	return Store{db: db}
 }
 
@@ -229,38 +229,32 @@ func (s Store) UpdateCar(ctx context.Context, car models.Car) (models.Car, error
 	return updatedCar, nil
 }
 
-func (s Store) DeleteCar(ctx context.Context, id string) (models.Car, error) {
-	var deletedCar models.Car
+func (s Store) DeleteCar(ctx context.Context, id string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return deletedCar, err
+		return err
 	}
 
 	// Delete Car
 	query := `DELETE FROM cars WHERE id=$1 RETURNING id, name, year, brand, fuel_type, engine_id, price, created_at, updated_at`
 
-	err = tx.QueryRowContext(ctx, query, id).Scan(
-		&deletedCar.ID,
-		&deletedCar.Name,
-		&deletedCar.Year,
-		&deletedCar.Brand,
-		&deletedCar.FuelType,
-		&deletedCar.Engine.EngineID,
-		&deletedCar.Price,
-		&deletedCar.CreatedAt,
-		&deletedCar.UpdatedAt)
-
+	result, err := tx.ExecContext(ctx, query, id)
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		tx.Rollback()
-		return deletedCar, err
+		return err
+	}	
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return errors.New("car not found")
 	}
-
+	
 	// Commit Transaction
 	if err = tx.Commit(); err != nil {
-		return deletedCar, err
+		return err
 	}
 
-	return deletedCar, nil
+	return nil
 }
 
 func (s Store) GetCars(ctx context.Context) ([]models.Car, error) {
