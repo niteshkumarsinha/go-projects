@@ -1,15 +1,9 @@
--- Drop existing foreign key constraint (if exists)
-ALTER TABLE IF EXISTS car
-DROP CONSTRAINT IF EXISTS fk_engine_id;
-
--- Truncate car table to clear existing data
-TRUNCATE TABLE car;
-
--- Truncate engine table to clear existing data
-TRUNCATE TABLE engine;    
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS car CASCADE;
+DROP TABLE IF EXISTS engine CASCADE;
 
 -- Create engine table
-CREATE TABLE IF NOT EXISTS engine (
+CREATE TABLE engine (
     id UUID PRIMARY KEY,
     displacement INT NOT NULL,
     no_of_cylinders INT NOT NULL,
@@ -18,7 +12,7 @@ CREATE TABLE IF NOT EXISTS engine (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS car (
+CREATE TABLE car (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     year VARCHAR(4) NOT NULL,

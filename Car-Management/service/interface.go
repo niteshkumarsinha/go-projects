@@ -17,7 +17,7 @@ type CarServiceInterface interface {
 type EngineServiceInterface interface {
 	GetEngineById(ctx context.Context, engineID string) (models.Engine, error)
 	GetEngines(ctx context.Context) ([]models.Engine, error)
-	UpdateEngine(ctx context.Context, engine models.Engine) (models.Engine, error)
+	UpdateEngine(ctx context.Context, engineID string, engine models.Engine) (models.Engine, error)
 	DeleteEngine(ctx context.Context, engineID string) error
 	CreateEngine(ctx context.Context, engine models.Engine) (models.Engine, error)
 }	

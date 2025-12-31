@@ -94,7 +94,7 @@ func (h *EngineHandler) UpdateEngine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	engine.EngineID = engineID
-	updatedEngine, err := h.engineService.UpdateEngine(ctx, engine)
+	updatedEngine, err := h.engineService.UpdateEngine(ctx, engineID.String(), engine)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -5,24 +5,26 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 var db *sql.DB
 
 func InitDB() {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", 
-				os.Getenv("DB_HOST"), 
-				os.Getenv("DB_PORT"), 
-				os.Getenv("DB_USER"), 
-				os.Getenv("DB_PASSWORD"), 
-				os.Getenv("DB_NAME"))
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"))
 
 	fmt.Println("Waiting to connect to the database")
 	time.Sleep(5 * time.Second)
 
 	var err error
 	db, err = sql.Open("postgres", connStr)
-	defer func(){
+	defer func() {
 		err := recover()
 		if err != nil {
 			fmt.Println("Error connecting to the database", err)
@@ -30,11 +32,11 @@ func InitDB() {
 	}()
 	if err != nil {
 		panic(err)
-	}	
+	}
 	if err := db.Ping(); err != nil {
 		panic(err)
 	}
-	fmt.Println("Successfully connected to the database")	
+	fmt.Println("Successfully connected to the database")
 }
 
 func GetDB() *sql.DB {

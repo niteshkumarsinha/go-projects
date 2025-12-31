@@ -54,7 +54,7 @@ func (s EngineStore) CreateEngine(ctx context.Context, engine models.Engine) (mo
 	return createdEngine, nil
 }
 
-func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engine *models.Engine) (models.Engine, error) {
+func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engine models.Engine) (models.Engine, error) {
 	var updatedEngine models.Engine
 
 	// Begin Transaction

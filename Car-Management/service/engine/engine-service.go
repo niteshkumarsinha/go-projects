@@ -33,8 +33,8 @@ func (s *EngineService) GetEngines(ctx context.Context) ([]models.Engine, error)
 	return engines, nil
 }
 
-func (s *EngineService) UpdateEngine(ctx context.Context, engine models.Engine) (models.Engine, error) {
-	updatedEngine, err := s.store.UpdateEngine(ctx, engine)
+func (s *EngineService) UpdateEngine(ctx context.Context, engineID string, engine models.Engine) (models.Engine, error) {
+	updatedEngine, err := s.store.UpdateEngine(ctx, engineID, engine)
 	if err != nil {
 		return models.Engine{}, err
 	}
