@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -31,6 +32,16 @@ func main() {
 	carHandler := carHandler.NewCarHandler(carService)
 	engineHandler := engineHandler.NewEngineHandler(engineService)
 
+	schemaFile := os.Getenv("SCHEMA_FILE")
+	if schemaFile == "" {
+		panic("SCHEMA_FILE not set")
+	}
+	
+	if err := executeSchema(db, schemaFile); err != nil {
+		log.Fatal("Failed to execute schema: ", err)
+	}
+	
+
 	router := mux.NewRouter()
 	router.HandleFunc("/cars", carHandler.GetCars).Methods("GET")
 	router.HandleFunc("/cars/{id}", carHandler.GetCarById).Methods("GET")
@@ -58,5 +69,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func executeSchema(db *sql.DB, schemaFile string) any {
+	sqlFile, err := os.ReadFile(schemaFile)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(string(sqlFile))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 	
