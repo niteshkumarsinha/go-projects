@@ -7,9 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/nitesh111sinha/car-management/models"
-	"github.com/nitesh111sinha/car-management/service"	
+	"github.com/nitesh111sinha/car-management/service"
 )
-
 
 type EngineHandler struct {
 	engineService service.EngineServiceInterface
@@ -54,13 +53,13 @@ func (h *EngineHandler) CreateEngine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	err = json.NewEncoder(w).Encode(createdEngine)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-}	
+}
 
 func (h *EngineHandler) GetEngines(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -100,12 +99,12 @@ func (h *EngineHandler) UpdateEngine(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(updatedEngine)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *EngineHandler) DeleteEngine(w http.ResponseWriter, r *http.Request) {

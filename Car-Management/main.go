@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/nitesh111sinha/car-management/driver"
@@ -20,7 +21,7 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
-	}	
+	}
 	driver.InitDB()
 	defer driver.CloseDB()
 
@@ -36,30 +37,28 @@ func main() {
 	if schemaFile == "" {
 		panic("SCHEMA_FILE not set")
 	}
-	
+
 	if err := executeSchema(db, schemaFile); err != nil {
 		log.Fatal("Failed to execute schema: ", err)
 	}
-	
 
 	router := mux.NewRouter()
 	router.HandleFunc("/cars", carHandler.GetCars).Methods("GET")
-	router.HandleFunc("/cars/{id}", carHandler.GetCarById).Methods("GET")
-	router.HandleFunc("/cars/{brand}", carHandler.GetCarByBrand).Methods("GET")	
+	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.GetCarById).Methods("GET")
+	router.HandleFunc("/cars/brand/{brand}", carHandler.GetCarByBrand).Methods("GET")
 	router.HandleFunc("/cars", carHandler.CreateCar).Methods("POST")
-	router.HandleFunc("/cars/{id}", carHandler.UpdateCar).Methods("PUT")
-	router.HandleFunc("/cars/{id}", carHandler.DeleteCar).Methods("DELETE")
-
+	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.UpdateCar).Methods("PUT")
+	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.DeleteCar).Methods("DELETE")
 
 	router.HandleFunc("/engines", engineHandler.GetEngines).Methods("GET")
 	router.HandleFunc("/engines/{id}", engineHandler.GetEngineById).Methods("GET")
 	router.HandleFunc("/engines", engineHandler.CreateEngine).Methods("POST")
 	router.HandleFunc("/engines/{id}", engineHandler.UpdateEngine).Methods("PUT")
-	router.HandleFunc("/engines/{id}", engineHandler.DeleteEngine).Methods("DELETE")	
+	router.HandleFunc("/engines/{id}", engineHandler.DeleteEngine).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"	
+		port = "8080"
 	}
 
 	addr := ":" + port
@@ -82,4 +81,3 @@ func executeSchema(db *sql.DB, schemaFile string) any {
 	}
 	return nil
 }
-	

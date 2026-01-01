@@ -9,24 +9,24 @@ import (
 )
 
 type Car struct {
-	ID uuid.UUID `json:"id"`
-	Name string `json:"name"`
-	Year string `json:"year"`
-	Brand string `json:"brand"`
-	FuelType string `json:"fuel_type"`
-	Engine Engine `json:"engine"`
-	Price float64 `json:"price"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	Year      string    `json:"year"`
+	Brand     string    `json:"brand"`
+	FuelType  string    `json:"fuel_type"`
+	Engine    Engine    `json:"engine"`
+	Price     float64   `json:"price"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CarRequest struct {
-	Name string `json:"name"`
-	Year string `json:"year"`
-	Brand string `json:"brand"`
-	FuelType string `json:"fuel_type"`
-	Engine Engine `json:"engine"`
-	Price float64 `json:"price"`
+	Name     string  `json:"name"`
+	Year     string  `json:"year"`
+	Brand    string  `json:"brand"`
+	FuelType string  `json:"fuel_type"`
+	Engine   Engine  `json:"engine"`
+	Price    float64 `json:"price"`
 }
 
 func ValidateRequest(carRequest CarRequest) error {
@@ -51,7 +51,6 @@ func ValidateRequest(carRequest CarRequest) error {
 	return nil
 }
 
-
 func validateName(name string) error {
 	if name == "" {
 		return errors.New("name is required")
@@ -71,7 +70,7 @@ func validateYear(year string) error {
 	currentYear := time.Now().Year()
 	yearInt, _ := strconv.Atoi(year)
 	if yearInt < 1886 || yearInt > currentYear {
-		return errors.New("year must be between 1886 and " + string(currentYear))
+		return errors.New("year must be between 1886 and " + strconv.Itoa(currentYear))
 	}
 	return nil
 }
@@ -104,7 +103,7 @@ func validateEngine(engine Engine) error {
 		return errors.New("no of cylinders is required and must be a positive number")
 	}
 	if engine.CarRange <= 0 {
-		return errors.New("car range is required and must be a positive number")	
+		return errors.New("car range is required and must be a positive number")
 	}
 	return nil
 }

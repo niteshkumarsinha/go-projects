@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"database/sql"
+
 	"github.com/google/uuid"
 	"github.com/nitesh111sinha/car-management/models"
 )
@@ -33,7 +34,7 @@ func (s EngineStore) CreateEngine(ctx context.Context, engine models.Engine) (mo
 		CarRange:      engine.CarRange,
 	}
 
-	query := `INSERT INTO engines (id, displacement, no_of_cylinders, car_range) VALUES ($1, $2, $3, $4) RETURNING id, displacement, no_of_cylinders, car_range`
+	query := `INSERT INTO engine (id, displacement, no_of_cylinders, car_range) VALUES ($1, $2, $3, $4) RETURNING id, displacement, no_of_cylinders, car_range`
 
 	err = tx.QueryRowContext(ctx, query, newEngine.EngineID, newEngine.Displacement, newEngine.NoOfCylinders, newEngine.CarRange).Scan(
 		&createdEngine.EngineID,
@@ -64,7 +65,7 @@ func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engine m
 	}
 
 	// Update Engine
-	query := `UPDATE engines SET displacement=$2, no_of_cylinders=$3, car_range=$4 WHERE id=$1 RETURNING id, displacement, no_of_cylinders, car_range`
+	query := `UPDATE engine SET displacement=$2, no_of_cylinders=$3, car_range=$4 WHERE id=$1 RETURNING id, displacement, no_of_cylinders, car_range`
 
 	err = tx.QueryRowContext(ctx, query, engineId, engine.Displacement, engine.NoOfCylinders, engine.CarRange).Scan(
 		&updatedEngine.EngineID,
@@ -88,7 +89,7 @@ func (s EngineStore) UpdateEngine(ctx context.Context, engineId string, engine m
 func (s EngineStore) GetEngineById(ctx context.Context, engineId string) (models.Engine, error) {
 	var engine models.Engine
 
-	query := `SELECT id, displacement, no_of_cylinders, car_range FROM engines WHERE id=$1`
+	query := `SELECT id, displacement, no_of_cylinders, car_range FROM engine WHERE id=$1`
 
 	err := s.db.QueryRowContext(ctx, query, engineId).Scan(
 		&engine.EngineID,
@@ -110,12 +111,21 @@ func (s EngineStore) DeleteEngine(ctx context.Context, engineId string) error {
 	}
 
 	// Delete Engine
-	query := `DELETE FROM engines WHERE id=$1`
+	query := `DELETE FROM engine WHERE id=$1`
 
-	row := tx.QueryRowContext(ctx, query, engineId)
-	if row.Scan() != nil {
+	result, err := tx.ExecContext(ctx, query, engineId)
+	if err != nil {
 		tx.Rollback()
 		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	if rowsAffected == 0 {
+		tx.Rollback()
+		return sql.ErrNoRows
 	}
 
 	// Commit Transaction
@@ -129,7 +139,7 @@ func (s EngineStore) DeleteEngine(ctx context.Context, engineId string) error {
 func (s EngineStore) GetEngines(ctx context.Context) ([]models.Engine, error) {
 	var engines []models.Engine
 
-	query := `SELECT id, displacement, no_of_cylinders, car_range FROM engines`
+	query := `SELECT id, displacement, no_of_cylinders, car_range FROM engine`
 
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
