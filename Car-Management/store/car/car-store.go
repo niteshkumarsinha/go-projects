@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nitesh111sinha/car-management/models"
+	"go.opentelemetry.io/otel"
 )
 
 type Store struct {
@@ -19,6 +20,9 @@ func NewCarStore(db *sql.DB) Store {
 }
 
 func (s Store) GetCarById(ctx context.Context, id string) (models.Car, error) {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "GetCarById-Store")
+	defer span.End()
 	var car models.Car
 	query := `SELECT c.id, c.name, c.year, c.brand, c.fuel_type, c.engine_id, c.price, c.created_at, c.updated_at, e.id, e.displacement, e.no_of_cylinders, e.car_range FROM car c LEFT JOIN engine e ON c.engine_id = e.id WHERE c.id=$1`
 
@@ -48,6 +52,9 @@ func (s Store) GetCarById(ctx context.Context, id string) (models.Car, error) {
 }
 
 func (s Store) GetCarByBrand(ctx context.Context, brand string, isEngine bool) ([]models.Car, error) {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "GetCarByBrand-Store")
+	defer span.End()	
 	var cars []models.Car
 	var query string
 	if isEngine {
@@ -109,6 +116,9 @@ func (s Store) GetCarByBrand(ctx context.Context, brand string, isEngine bool) (
 }
 
 func (s Store) CreateCar(ctx context.Context, car models.Car) (models.Car, error) {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "CreateCar-Store")
+	defer span.End()	
 	var createdCar models.Car
 	var engineId uuid.UUID
 
@@ -178,6 +188,9 @@ func (s Store) CreateCar(ctx context.Context, car models.Car) (models.Car, error
 }
 
 func (s Store) UpdateCar(ctx context.Context, car models.Car) (models.Car, error) {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "UpdateCar-Store")
+	defer span.End()
 	var updatedCar models.Car
 	var engineId uuid.UUID
 
@@ -232,6 +245,9 @@ func (s Store) UpdateCar(ctx context.Context, car models.Car) (models.Car, error
 }
 
 func (s Store) DeleteCar(ctx context.Context, id string) error {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "DeleteCar-Store")
+	defer span.End()	
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -264,6 +280,9 @@ func (s Store) DeleteCar(ctx context.Context, id string) error {
 }
 
 func (s Store) GetCars(ctx context.Context) ([]models.Car, error) {
+	tracer := otel.Tracer("car-store")
+	ctx, span := tracer.Start(ctx, "GetCars-Store")
+	defer span.End()		
 	var cars []models.Car
 	query := `SELECT id, name, year, brand, fuel_type, engine_id, price, created_at, updated_at FROM car`
 	rows, err := s.db.QueryContext(ctx, query)

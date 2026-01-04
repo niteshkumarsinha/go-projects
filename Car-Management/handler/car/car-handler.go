@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/nitesh111sinha/car-management/models"
 	"github.com/nitesh111sinha/car-management/service"
+	"go.opentelemetry.io/otel"
 )
 
 type CarHandler struct {
@@ -21,7 +22,11 @@ func NewCarHandler(carService service.CarServiceInterface) *CarHandler {
 }
 
 func (h *CarHandler) GetCarById(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	//ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "GetCarById-Handler")
+	defer span.End()
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	car, err := h.carService.GetCarById(ctx, id)
@@ -35,7 +40,9 @@ func (h *CarHandler) GetCarById(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) GetCars(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "GetCars-Handler")
+	defer span.End()
 	cars, err := h.carService.GetCars(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -47,7 +54,9 @@ func (h *CarHandler) GetCars(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) UpdateCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "UpdateCar-Handler")
+	defer span.End()
 	vars := mux.Vars(r)
 	id := vars["id"]
 	var car models.Car
@@ -77,7 +86,9 @@ func (h *CarHandler) UpdateCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) DeleteCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "DeleteCar-Handler")
+	defer span.End()
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -89,7 +100,9 @@ func (h *CarHandler) DeleteCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) GetCarByBrand(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "GetCarByBrand-Handler")
+	defer span.End()
 	vars := mux.Vars(r)
 	brand := vars["brand"]
 	isEngine := r.URL.Query().Get("isEngine") == "true"
@@ -108,7 +121,9 @@ func (h *CarHandler) GetCarByBrand(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CarHandler) CreateCar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	tracer := otel.Tracer("car-handler")
+	ctx, span := tracer.Start(r.Context(), "CreateCar-Handler")
+	defer span.End()
 	var car models.Car
 	err := json.NewDecoder(r.Body).Decode(&car)
 	if err != nil {
