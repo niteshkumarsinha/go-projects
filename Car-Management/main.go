@@ -11,6 +11,8 @@ import (
 	"github.com/nitesh111sinha/car-management/driver"
 	carHandler "github.com/nitesh111sinha/car-management/handler/car"
 	engineHandler "github.com/nitesh111sinha/car-management/handler/engine"
+	"github.com/nitesh111sinha/car-management/handler/login"
+	"github.com/nitesh111sinha/car-management/middleware"
 	carService "github.com/nitesh111sinha/car-management/service/car"
 	engineService "github.com/nitesh111sinha/car-management/service/engine"
 	carStore "github.com/nitesh111sinha/car-management/store/car"
@@ -43,18 +45,23 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/cars", carHandler.GetCars).Methods("GET")
-	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.GetCarById).Methods("GET")
-	router.HandleFunc("/cars/brand/{brand}", carHandler.GetCarByBrand).Methods("GET")
-	router.HandleFunc("/cars", carHandler.CreateCar).Methods("POST")
-	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.UpdateCar).Methods("PUT")
-	router.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.DeleteCar).Methods("DELETE")
+	router.HandleFunc("/login", login.LoginHandler).Methods("POST")
 
-	router.HandleFunc("/engines", engineHandler.GetEngines).Methods("GET")
-	router.HandleFunc("/engines/{id}", engineHandler.GetEngineById).Methods("GET")
-	router.HandleFunc("/engines", engineHandler.CreateEngine).Methods("POST")
-	router.HandleFunc("/engines/{id}", engineHandler.UpdateEngine).Methods("PUT")
-	router.HandleFunc("/engines/{id}", engineHandler.DeleteEngine).Methods("DELETE")
+	protected := router.PathPrefix("/").Subrouter()
+	protected.Use(middleware.AuthMiddleware)
+
+	protected.HandleFunc("/cars", carHandler.GetCars).Methods("GET")
+	protected.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.GetCarById).Methods("GET")
+	protected.HandleFunc("/cars/brand/{brand}", carHandler.GetCarByBrand).Methods("GET")
+	protected.HandleFunc("/cars", carHandler.CreateCar).Methods("POST")
+	protected.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.UpdateCar).Methods("PUT")
+	protected.HandleFunc("/cars/{id:[0-9a-fA-F-]{36}}", carHandler.DeleteCar).Methods("DELETE")
+
+	protected.HandleFunc("/engines", engineHandler.GetEngines).Methods("GET")
+	protected.HandleFunc("/engines/{id}", engineHandler.GetEngineById).Methods("GET")
+	protected.HandleFunc("/engines", engineHandler.CreateEngine).Methods("POST")
+	protected.HandleFunc("/engines/{id}", engineHandler.UpdateEngine).Methods("PUT")
+	protected.HandleFunc("/engines/{id}", engineHandler.DeleteEngine).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	if port == "" {
